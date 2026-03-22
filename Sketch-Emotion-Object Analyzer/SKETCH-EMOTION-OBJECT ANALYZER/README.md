@@ -19,9 +19,13 @@ All functionalities are integrated into a single platform using Flask, making it
 🚀 Features
 
 ✨ Convert images into realistic pencil sketches
+
 😊 Detect human emotions in real-time using webcam
+
 🎯 Identify objects with high accuracy using YOLOv8
+
 👤 User authentication system (Login/Register/Profile)
+
 💾 Save and manage outputs in user profile
 
 
@@ -62,32 +66,55 @@ SQLite3
 SKETCH-EMOTION-OBJECT-ANALYZER/
 │
 ├── static/
+
 │   ├── backgrounds/
+
 │   ├── css/
+
 │   │   └── styles.css
 │   ├── emotions/
+
 │   ├── images/
+
 │   ├── js/
+
 │   ├── models/
+
 │   ├── objects/
+
 │   ├── profile/
+
 │   ├── profile_saves/
+
 │   ├── profile_uploads/
+
 │   ├── profiles/
+
 │   ├── sketches/
+
 │
 ├── templates/
+
 │   ├── home.html
+
 │   ├── login.html
+
 │   ├── register.html
+
 │   ├── profile.html
+
 │   ├── sketch.html
+
 │   ├── sketch_result.html
+
 │   ├── emotion.html
+
 │   ├── object.html
 │
 ├── app.py
+
 ├── requirements.txt
+
 ├── yolov8n.pt
 
 
@@ -171,8 +198,6 @@ Object detection records
 🎤 Voice-based emotion detection
 
 📊 Analytics dashboard
-
-
 
 ---
 
