@@ -66,57 +66,33 @@ SQLite3
 SKETCH-EMOTION-OBJECT-ANALYZER/
 │
 ├── static/
-
 │   ├── backgrounds/
-
 │   ├── css/
-
 │   │   └── styles.css
 │   ├── emotions/
-
 │   ├── images/
-
 │   ├── js/
-
 │   ├── models/
-
 │   ├── objects/
-
 │   ├── profile/
-
 │   ├── profile_saves/
-
 │   ├── profile_uploads/
-
 │   ├── profiles/
-
 │   ├── sketches/
-
 │
 ├── templates/
-
 │   ├── home.html
-
 │   ├── login.html
-
 │   ├── register.html
-
 │   ├── profile.html
-
 │   ├── sketch.html
-
 │   ├── sketch_result.html
-
 │   ├── emotion.html
-
 │   ├── object.html
 │
 ├── app.py
-
 ├── requirements.txt
-
 ├── yolov8n.pt
-
 
 ---
 
