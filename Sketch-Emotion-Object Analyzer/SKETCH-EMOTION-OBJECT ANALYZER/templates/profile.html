@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ username }}'s Profile</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: url('{{ url_for("static", filename="images/container.png") }}') no-repeat center center/cover;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.65);
+      min-height: 100vh;
+      padding: 50px;
+      text-align: center;
+      backdrop-filter: blur(5px);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 8px #000;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin-top: 40px;
+      color: #00bfff;
+    }
+
+    .gallery {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .img-box {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      overflow: hidden;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .img-box:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(0,191,255,0.7);
+    }
+
+    .img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+
+    .img-label {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      padding: 6px 0;
+      font-size: 0.95rem;
+      border-radius: 0 0 15px 15px;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(255, 0, 0, 0.8);
+      border: none;
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .delete-btn:hover {
+      background: red;
+    }
+
+    /* 🔮 Lightbox Popup */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(6px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .lightbox-content {
+      position: relative;
+      text-align: center;
+    }
+
+    .lightbox img {
+      max-width: 85vw;
+      max-height: 75vh;
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(255,255,255,0.3);
+      animation: zoomIn 0.4s ease;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .lightbox-label {
+      margin-top: 15px;
+      font-size: 1.4rem;
+      color: #00ffcc;
+      text-shadow: 0 0 8px rgba(0,255,204,0.6);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: -40px;
+      right: -10px;
+      font-size: 2rem;
+      color: #fff;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .close-btn:hover {
+      color: #00bfff;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-top: 40px;
+      padding: 10px 20px;
+      background: linear-gradient(45deg, #007bff, #00bfff);
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: transform 0.3s;
+    }
+
+    .back-btn:hover {
+      transform: scale(1.05);
+      background: linear-gradient(45deg, #00bfff, #007bff);
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>👤 {{ username }}'s Profile</h1>
+
+    <h2>🎨 Saved Sketches</h2>
+    <div class="gallery">
+      {% for img in sketches %}
+      <div class="img-box">
+        <img src="{{ url_for('static', filename='sketches/' + img) }}" alt="Sketch" onclick="openLightbox('{{ url_for('static', filename='sketches/' + img) }}', '🖌 Sketch')">
+        <div class="img-label">🖌 Sketch</div>
+        <button class="delete-btn" onclick="deleteFile('{{ img }}', 'sketch')">✖</button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <h2>😊 Saved Emotions</h2>
+    <div class="gallery">
+      {% for img in emotions %}
+      {% set emotion_label = img.split('_')[1].capitalize() if '_' in img else 'Unknown' %}
+      <div class="img-box">
+        <img src="{{ url_for('static', filename='emotions/' + img) }}" alt="Emotion" onclick="openLightbox('{{ url_for('static', filename='emotions/' + img) }}', '😄 {{ emotion_label }}')">
+        <div class="img-label">😄 {{ emotion_label }}</div>
+        <button class="delete-btn" onclick="deleteFile('{{ img }}', 'emotion')">✖</button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <a href="{{ url_for('home') }}" class="back-btn">⬅ Back to Dashboard</a>
+  </div>
+
+  <!-- 🌈 Lightbox -->
+  <div id="lightbox" class="lightbox">
+    <div class="lightbox-content">
+      <span class="close-btn" onclick="closeLightbox()">✖</span>
+      <img id="lightboxImage" src="" alt="Preview">
+      <div class="lightbox-label" id="lightboxLabel"></div>
+    </div>
+  </div>
+
+  <script>
+    function openLightbox(src, label) {
+      document.getElementById("lightbox").style.display = "flex";
+      document.getElementById("lightboxImage").src = src;
+      document.getElementById("lightboxLabel").textContent = label;
+    }
+
+    function closeLightbox() {
+      document.getElementById("lightbox").style.display = "none";
+    }
+
+    function deleteFile(filename, category) {
+      if (!confirm("🗑 Are you sure you want to delete this " + category + "?")) return;
+
+      fetch(`/delete_file/${category}/${filename}`, { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message);
+          location.reload();
+        })
+        .catch(err => alert("Error: " + err));
+    }
+  </script>
+</body>
+</html>

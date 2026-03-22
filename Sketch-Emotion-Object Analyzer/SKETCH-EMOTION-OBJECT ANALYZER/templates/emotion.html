@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>😊 Real-Time Emotion Detection</title>
+  <style>
+    /* 🌈 Animated background */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      text-align: center;
+      background: linear-gradient(-45deg, #ff6ec4, #7873f5, #2575fc, #6a11cb);
+      background-size: 400% 400%;
+      animation: gradientShift 10s ease infinite;
+      overflow-x: hidden;
+      overflow-y: auto;
+      min-height: 100vh;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.55);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 60px 20px 100px;
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin: 25px 0;
+      letter-spacing: 1px;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #fff, 0 0 20px #00f2fe, 0 0 30px #4facfe; }
+      to { text-shadow: 0 0 25px #fff, 0 0 40px #00f2fe, 0 0 60px #4facfe; }
+    }
+
+    /* 🎡 Spinner animation */
+    .spinner {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      border: 6px solid rgba(255,255,255,0.2);
+      border-top: 6px solid #00f2fe;
+      border-right: 6px solid #4facfe;
+      border-radius: 50%;
+      animation: spin 1.3s linear infinite, pulse 2s ease-in-out infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(0,242,254,0.4); }
+      50% { box-shadow: 0 0 40px rgba(0,242,254,1); }
+    }
+
+    .spinner-emoji {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.8rem;
+      animation: rotateEmoji 1.5s linear infinite;
+    }
+    @keyframes rotateEmoji {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    #loadingText {
+      font-size: 1.2rem;
+      color: #aeeaff;
+      animation: blink 1.8s infinite;
+      margin-bottom: 30px;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    img {
+      border: 3px solid #fff;
+      border-radius: 15px;
+      width: 75%;
+      max-width: 700px;
+      box-shadow: 0 0 25px rgba(255,255,255,0.3);
+      display: none;
+      margin-bottom: 30px;
+    }
+
+    button {
+      margin: 10px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 17px;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(45deg, #00f2fe, #4facfe);
+      transition: 0.4s ease;
+      box-shadow: 0 0 15px rgba(0,242,254,0.4);
+    }
+    button:hover {
+      transform: scale(1.1);
+      background: linear-gradient(45deg, #4facfe, #00f2fe);
+      box-shadow: 0 0 30px rgba(0,242,254,0.8);
+    }
+
+    footer {
+      margin-top: 50px;
+      font-size: 0.9em;
+      opacity: 0.8;
+      text-shadow: 0 0 8px rgba(255,255,255,0.5);
+    }
+
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(79,172,254,0.5); border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(79,172,254,0.8); }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <!-- Loader -->
+    <div id="loader">
+      <div class="spinner">
+        <div class="spinner-emoji">😊</div>
+      </div>
+      <p id="loadingText">🎥 Detecting your mood... Please wait</p>
+    </div>
+
+    <h1>😊 Real-Time Emotion Detection</h1>
+    <img id="videoFeed" src="{{ url_for('video_feed_emotion') }}" alt="Emotion Feed" />
+
+    <div>
+      <button id="captureBtn" style="display:none;" onclick="captureEmotion()">📸 Capture Emotion</button>
+      <button id="saveBtn" style="display:none;" onclick="saveEmotion()">💾 Save to Profile</button>
+      <button onclick="window.location.href='{{ url_for('home') }}'">🏠 Back to Dashboard</button>
+    </div>
+
+    <footer>💡 Tip: Try smiling, frowning, or looking surprised to see real-time results!</footer>
+  </div>
+
+  <script>
+    const videoFeed = document.getElementById('videoFeed');
+    const loader = document.getElementById('loader');
+    const captureBtn = document.getElementById('captureBtn');
+    const saveBtn = document.getElementById('saveBtn');
+
+    window.onload = () => {
+      setTimeout(() => {
+        loader.style.display = 'none';
+        videoFeed.style.display = 'block';
+        captureBtn.style.display = 'inline-block';
+      }, 3500);
+    };
+
+    function captureEmotion() {
+      fetch('/capture_emotion', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          alert('😄 Captured Emotion: ' + data.emotion);
+          saveBtn.style.display = 'inline-block';
+        })
+        .catch(err => alert('Error: ' + err));
+    }
+
+    function saveEmotion() {
+      fetch('/save_emotion', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => alert('✅ ' + data.message))
+        .catch(err => alert('Error: ' + err));
+    }
+  </script>
+</body>
+</html>

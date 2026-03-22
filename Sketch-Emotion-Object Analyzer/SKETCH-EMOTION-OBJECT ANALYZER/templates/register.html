@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register | AI Analyzer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      min-height: 150vh;
+      background: 
+        
+        url("{{ url_for('static', filename='backgrounds/login_bg.jpg') }}") no-repeat center center/cover;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      position: relative;
+      animation: bgZoom 15s ease-in-out infinite alternate;
+      scroll-behavior: smooth;
+    }
+
+    /* Background zoom animation */
+    @keyframes bgZoom {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.07); }
+    }
+
+    .container {
+      margin-top: 12vh;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 40px 50px;
+      width: 380px;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(0,0,0,0.4);
+      color: #fff;
+      position: relative;
+      z-index: 2;
+    }
+
+    @keyframes shine {
+      0% { left: -75%; }
+      100% { left: 125%; }
+    }
+
+    .logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: contain;
+      margin-bottom: 15px;
+      animation: pulse 2.5s infinite ease-in-out;
+      box-shadow: 0 0 15px rgba(255,255,255,0.4);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 5px rgba(255,255,255,0.3); }
+      50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255,255,255,0.6); }
+      100% { transform: scale(1); box-shadow: 0 0 5px rgba(255,255,255,0.3); }
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(255,255,255,0.6);
+    }
+
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      box-shadow: 0 0 10px rgba(255,255,255,0.6);
+      transform: scale(1.02);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    button:hover {
+      transform: translateY(-3px) scale(1.05);
+      background: linear-gradient(90deg, #2575fc, #6a11cb);
+      box-shadow: 0 0 25px rgba(255,255,255,0.6);
+    }
+
+    .login-link {
+      margin-top: 10px;
+    }
+
+    .login-link a {
+      color: #fff;
+      text-decoration: underline;
+      font-size: 0.95em;
+      transition: color 0.3s ease;
+    }
+
+    .login-link a:hover {
+      color: #a5c9ff;
+    }
+
+    /* ✅ Bubble effect same as login */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      animation: float 10s infinite ease-in-out;
+      z-index: 0;
+    }
+
+    @keyframes float {
+      from { transform: translateY(100vh); opacity: 0.6; }
+      to { transform: translateY(-10vh); opacity: 1; }
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(37,117,252,0.5);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(37,117,252,0.8);
+    }
+
+    .flash {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      font-size: 0.9em;
+    }
+
+    .flash-success { background-color: rgba(212,237,218,0.9); color: #155724; }
+    .flash-danger { background-color: rgba(248,215,218,0.9); color: #721c24; }
+    .flash-info { background-color: rgba(209,236,241,0.9); color: #0c5460; }
+  </style>
+</head>
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div style="position:absolute;top:15px;text-align:center;width:100%;z-index:3;">
+      {% for category, msg in messages %}
+        <p class="flash flash-{{ category }}">{{ msg }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% endwith %}
+
+  <div class="container">
+    <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo">
+    <h1>📝 Register</h1>
+
+    <form method="POST">
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+      <button type="submit">Sign Up</button>
+    </form>
+
+    <div class="login-link">
+      Already have an account? <a href="{{ url_for('login') }}">Login</a>
+    </div>
+  </div>
+
+  <script>
+    // ✅ Create floating bubbles dynamically
+    for (let i = 0; i < 25; i++) {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      bubble.style.width = bubble.style.height = `${Math.random() * 60 + 20}px`;
+      bubble.style.left = `${Math.random() * 100}vw`;
+      bubble.style.animationDuration = `${Math.random() * 6 + 4}s`;
+      bubble.style.animationDelay = `${Math.random() * 3}s`;
+      document.body.appendChild(bubble);
+    }
+  </script>
+</body>
+</html>

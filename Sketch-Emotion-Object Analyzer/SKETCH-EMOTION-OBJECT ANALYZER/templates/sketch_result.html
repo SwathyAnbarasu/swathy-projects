@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ Your Magical Sketch ✨</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: url("{{ url_for('static', filename='images/sketch_result_bg.jpg') }}") no-repeat center center/cover;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      text-align: center;
+      overflow-y: auto;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 0;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 10px #ffb6c1;
+      animation: fadeIn 1.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .controls {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      padding: 20px;
+      width: 380px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      margin-top: 25px;
+      text-align: left;
+    }
+
+    .controls label {
+      display: block;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .image-preview {
+      margin-top: 20px;
+    }
+
+    img {
+      width: 420px;
+      border: 3px solid #ffb6c1;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 192, 203, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .buttons {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    button {
+      background: linear-gradient(45deg, #ff6ec7, #ffa6ff);
+      border: none;
+      border-radius: 25px;
+      padding: 12px 24px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255, 182, 193, 0.7);
+    }
+
+    .share-container {
+      position: relative;
+    }
+
+    .share-popup {
+      display: none;
+      position: absolute;
+      top: -10px;
+      right: -200px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      padding: 15px 20px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .share-popup a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      margin: 8px 0;
+      font-weight: 500;
+    }
+
+    .share-popup a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>🎨 Your Magical Sketch is Ready!</h1>
+
+    <div class="image-preview">
+      <img id="sketchImage" src="{{ url_for('static', filename='sketches/' + sketch_image) }}" alt="Sketch Result">
+    </div>
+
+    <div class="controls">
+      <label>🌈 Brightness</label>
+      <input type="range" id="brightness" min="50" max="150" value="100">
+      <label>✨ Contrast</label>
+      <input type="range" id="contrast" min="50" max="150" value="100">
+      <label>🖌️ Strength</label>
+      <input type="range" id="strength" min="50" max="150" value="100">
+      <label>💡 HDR Effect</label>
+      <input type="range" id="hdr" min="0" max="100" value="0">
+    </div>
+
+    <div class="buttons">
+      <form method="POST" action="{{ url_for('sketch') }}">
+        <input type="hidden" name="filename" value="{{ sketch_image }}">
+        <button type="submit">💾 Save to Profile</button>
+      </form>
+
+      <button onclick="window.location.href='{{ url_for('home') }}'">⬅ Back to Dashboard</button>
+
+      <div class="share-container">
+        <button id="shareBtn">📤 Share</button>
+        <div id="sharePopup" class="share-popup">
+          <a href="#" id="whatsappShare">💬 WhatsApp</a>
+          <a href="#" id="emailShare">📧 Email</a>
+          <a href="#" id="facebookShare">📘 Facebook</a>
+          <a href="#" id="twitterShare">🐦 Twitter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sketchImage = document.getElementById("sketchImage");
+    const brightness = document.getElementById("brightness");
+    const contrast = document.getElementById("contrast");
+    const strength = document.getElementById("strength");
+    const hdr = document.getElementById("hdr");
+
+    function applyFilters() {
+      const b = brightness.value / 100;
+      const c = contrast.value / 100;
+      const s = strength.value / 100;
+      const h = hdr.value / 100;
+      sketchImage.style.filter = `
+        brightness(${b})
+        contrast(${c * 1.5})
+        saturate(${s * 1.2})
+        drop-shadow(0 0 ${h * 30}px rgba(255, 255, 255, ${h / 2}))
+      `;
+    }
+
+    [brightness, contrast, strength, hdr].forEach(input => input.addEventListener('input', applyFilters));
+    applyFilters();
+
+    const shareBtn = document.getElementById("shareBtn");
+    const sharePopup = document.getElementById("sharePopup");
+
+    shareBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      sharePopup.style.display = sharePopup.style.display === "block" ? "none" : "block";
+    });
+
+    document.addEventListener("click", e => {
+      if (!sharePopup.contains(e.target) && e.target !== shareBtn) sharePopup.style.display = "none";
+    });
+
+    const imageUrl = window.location.origin + "{{ url_for('static', filename='sketches/' + sketch_image) }}";
+    document.getElementById("whatsappShare").href = `https://api.whatsapp.com/send?text=Check out my sketch! ${imageUrl}`;
+    document.getElementById("emailShare").href = `mailto:?subject=My Sketch&body=Look at this! ${imageUrl}`;
+    document.getElementById("facebookShare").href = `https://www.facebook.com/sharer/sharer.php?u=${imageUrl}`;
+    document.getElementById("twitterShare").href = `https://twitter.com/intent/tweet?text=Check out my sketch!&url=${imageUrl}`;
+  </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎯 Real-Time Object Detection</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: url("{{ url_for('static', filename='backgrounds/object.jpg') }}") no-repeat center center/cover;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .overlay {
+      background: rgba(0, 0, 0, 0.6);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 1s ease-in;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 12px rgba(0, 255, 153, 0.8);
+      animation: slideDown 1.2s ease-in-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Neon Glow Spinner */
+    #spinner {
+      width: 90px;
+      height: 90px;
+      border: 5px solid rgba(255, 255, 255, 0.15);
+      border-top: 5px solid #00ffcc;
+      border-radius: 50%;
+      animation: spin 1.2s linear infinite, glowPulse 1.5s ease-in-out infinite alternate;
+      margin-top: 25px;
+      box-shadow: 0 0 30px rgba(0, 255, 200, 0.4);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes glowPulse {
+      0% { box-shadow: 0 0 15px rgba(0,255,200,0.5), 0 0 30px rgba(0,255,200,0.3); }
+      100% { box-shadow: 0 0 25px rgba(0,255,200,0.9), 0 0 60px rgba(0,255,200,0.5); }
+    }
+
+    /* Loading Message */
+    #waitMsg {
+      font-size: 1.3rem;
+      color: #00ffcc;
+      margin-top: 15px;
+      text-shadow: 0 0 12px rgba(0,255,204,0.8);
+      animation: textGlow 1.5s infinite alternate;
+    }
+
+    @keyframes textGlow {
+      from { opacity: 0.7; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1.03); }
+    }
+
+    /* Video & Canvas */
+    video, canvas {
+      width: 70%;
+      max-width: 700px;
+      border: 3px solid #00ffcc;
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0,255,204,0.3);
+    }
+
+    video { display: none; }
+
+    .video-container {
+      position: relative;
+      display: inline-block;
+      margin-top: 20px;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    /* Stylish Buttons */
+    button {
+      margin-top: 20px;
+      background: linear-gradient(135deg, rgba(0,255,204,0.9), rgba(0,150,255,0.8));
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.4s ease;
+      box-shadow: 0 0 15px rgba(0,255,204,0.4);
+      backdrop-filter: blur(5px);
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, rgba(0,150,255,0.9), rgba(0,255,204,0.9));
+      transform: scale(1.07);
+      box-shadow: 0 0 30px rgba(0,255,204,0.8), 0 0 50px rgba(0,150,255,0.5);
+    }
+
+    /* Subtle page fade-in */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>🎯 Real-Time Object Detection</h1>
+    <p id="waitMsg">🤖 <b>Loading AI Models...</b><br>⚙️ Please wait a moment...</p>
+    <div id="spinner"></div>
+
+    <div class="video-container">
+      <video id="video" autoplay playsinline></video>
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <button id="captureBtn" style="display:none;">📸 Capture Snapshot</button>
+    <button id="saveBtn" style="display:none;">💾 Save to Profile</button>
+    <button onclick="window.location.href='{{ url_for('home') }}'">⬅ Back to Dashboard</button>
+  </div>
+<img src="{{ url_for('video_feed_object') }}" />
+
+  <!-- Load TFJS & COCO-SSD -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2"></script>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const spinner = document.getElementById('spinner');
+    const waitMsg = document.getElementById('waitMsg');
+    const captureBtn = document.getElementById('captureBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    let model, capturedImage = null;
+
+    async function init() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+
+        video.onloadedmetadata = async () => {
+          video.play();
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+
+          waitMsg.innerHTML = "🧠 <b>Loading...</b>";
+          model = await cocoSsd.load();
+
+          spinner.style.display = "none";
+          waitMsg.style.display = "none";
+          video.style.display = "block";
+          captureBtn.style.display = "inline-block";
+
+          console.log("✅ COCO-SSD model loaded successfully!");
+          detectFrame();
+        };
+      } catch (e) {
+        alert("Camera or model loading error: " + e);
+      }
+    }
+
+    async function detectFrame() {
+      if (!model) return;
+      const predictions = await model.detect(video);
+      renderPredictions(predictions);
+      requestAnimationFrame(detectFrame);
+    }
+
+    function renderPredictions(predictions) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      predictions.forEach(pred => {
+        const [x, y, w, h] = pred.bbox;
+        ctx.strokeStyle = '#00ffcc';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x, y, w, h);
+        ctx.font = '20px Poppins';
+        ctx.fillStyle = '#00ffcc';
+        ctx.fillText(`${pred.class} (${Math.round(pred.score * 100)}%)`, x, y > 20 ? y - 8 : 20);
+      });
+    }
+
+    captureBtn.addEventListener('click', () => {
+      const tempCanvas = document.createElement('canvas');
+      const tctx = tempCanvas.getContext('2d');
+      tempCanvas.width = video.videoWidth;
+      tempCanvas.height = video.videoHeight;
+      tctx.drawImage(video, 0, 0);
+      capturedImage = tempCanvas.toDataURL('image/png');
+      saveBtn.style.display = "inline-block";
+      alert("📸 Snapshot captured!");
+    });
+
+    saveBtn.addEventListener('click', () => {
+      if (!capturedImage) return alert("Please capture first!");
+      fetch("{{ url_for('object_page') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: capturedImage })
+      })
+      .then(r => r.json())
+      .then(d => alert("✅ " + d.message))
+      .catch(e => alert("Error: " + e));
+    });
+
+    init();
+  </script>
+</body>
+</html>

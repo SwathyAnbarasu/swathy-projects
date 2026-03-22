@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎨 Convert to Sketch</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+      color: #fff;
+      background: url("{{ url_for('static', filename='images/sketch.jpg') }}") no-repeat center center/cover;
+      background-size: cover;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 40px 30px 60px;
+      width: 90%;
+      max-width: 450px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+      margin: 70px 0;
+      z-index: 1;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      margin-bottom: 25px;
+      text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.8);
+    }
+
+    label.upload-btn {
+      display: inline-block;
+      padding: 12px 30px;
+      background: #ff6ec7;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    label.upload-btn:hover {
+      background: #ffb6c1;
+      transform: scale(1.05);
+    }
+
+    input[type="file"] { display: none; }
+
+    .preview {
+      margin-top: 20px;
+    }
+
+    .preview img {
+      width: 100%;
+      max-width: 320px;
+      border-radius: 15px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+      display: none;
+      transition: all 0.3s ease;
+    }
+
+    button {
+      margin-top: 25px;
+      background: linear-gradient(45deg, #8a2be2, #ff69b4);
+      border: none;
+      border-radius: 25px;
+      padding: 12px 30px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255, 182, 193, 0.8);
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-top: 20px;
+      color: #fff;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .loader-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      color: #fff;
+      text-align: center;
+    }
+
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #ff69b4;
+      border-radius: 50%;
+      width: 55px;
+      height: 55px;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    <style>
+  /* ... previous styles remain unchanged ... */
+
+  .card {
+    position: relative;
+    width: 300px;
+    height: 200px;
+    border-radius: 20px;
+    overflow: hidden;
+    text-decoration: none;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* ✅ Move content to bottom */
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    background-size: cover;
+    background-position: center;
+    isolation: isolate;
+  }
+
+  /* Dark gradient at bottom */
+  .card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    z-index: 0;
+  }
+
+  .card h6 {
+    position: relative;
+    z-index: 1;
+    font-size: 0.95rem;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.6);
+    margin: 15px 10px; /* ✅ Add space from bottom */
+    text-align: center;
+  }
+
+  .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 35px rgba(255, 255, 255, 0.5);
+  }
+
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🖼️ Convert Your Image to a Sketch ✨</h1>
+
+  <form method="POST" action="{{ url_for('sketch') }}" enctype="multipart/form-data" onsubmit="showLoader()">
+  <label for="file" class="upload-btn">📸 Choose Image</label>
+  <input type="file" id="file" name="image" accept="image/*" required onchange="previewImage(event)">
+  <div class="preview">
+    <img id="preview" src="#" alt="Image Preview">
+  </div>
+  <button type="submit">🎨 Convert Now</button>
+</form>
+
+
+    <div class="back-btn" onclick="window.location.href='{{ url_for('home') }}'">
+      ⬅ Back to Dashboard
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-overlay" id="loaderOverlay">
+    <div class="loader"></div>
+    <div>✨ Converting... please wait 💜</div>
+  </div>
+
+  <script>
+    // Image preview
+    function previewImage(event) {
+      const preview = document.getElementById('preview');
+      preview.src = URL.createObjectURL(event.target.files[0]);
+      preview.style.display = 'block';
+    }
+
+    // Compress before upload (reduces size & speeds up)
+    async function compressImage(file, maxWidth = 800, quality = 0.7) {
+      const img = document.createElement('img');
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const base64 = await new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
+      return new Promise(resolve => {
+        img.onload = () => {
+          const scale = maxWidth / img.width;
+          canvas.width = maxWidth;
+          canvas.height = img.height * scale;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+        };
+        img.src = base64;
+      });
+    }
+
+    // AJAX upload
+    document.getElementById('sketchForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const loader = document.getElementById('loaderOverlay');
+      loader.style.display = 'flex';
+
+      const fileInput = document.getElementById('file');
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      // Compress image for faster upload
+      const compressedBlob = await compressImage(file);
+      const formData = new FormData();
+      formData.append('image', compressedBlob, file.name);
+
+      const response = await fetch('{{ url_for("sketch") }}', {
+        method: 'POST',
+        body: formData
+      });
+
+      loader.style.display = 'none';
+
+      if (response.ok) {
+        window.location.href = response.url; // show result page
+      } else {
+        alert('Upload failed. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>

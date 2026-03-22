@@ -1,0 +1,8 @@
+flask
+opencv-python
+numpy
+ultralytics
+fer
+tensorflow-cpu
+Pillow
+werkzeug

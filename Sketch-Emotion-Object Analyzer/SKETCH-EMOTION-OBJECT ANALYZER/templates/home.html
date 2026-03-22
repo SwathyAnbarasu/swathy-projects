@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎨 Sketch • Emotion • Object Analyzer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: url("{{ url_for('static', filename='backgrounds/container_bg.png') }}") no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+.navbar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.45); /* 🔹 uniform transparency */
+  backdrop-filter: blur(12px);
+  border-radius: 50px;
+  padding: 12px 30px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.25);
+  z-index: 10;
+  border: none;          /* 🧹 removes any inner border line */
+  outline: none;         /* ensure no outline edge */
+}
+
+.nav-left, .nav-right {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.nav-btn {
+  text-decoration: none;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+.nav-btn:hover {
+  background: rgba(0, 255, 255, 0.25); /* 💠 Cyan hover */
+  transform: scale(1.07);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+}
+
+    /* 🌟 Hero Section */
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 120px 20px 80px;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
+      animation: fadeInDown 1.5s ease-in-out;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      line-height: 1.6;
+      margin-bottom: 50px;
+      animation: fadeIn 2s ease;
+      text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* 🧩 Cards */
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 25px;
+    }
+
+    .card {
+      position: relative;
+      width: 300px;
+      height: 200px;
+      border-radius: 20px;
+      overflow: hidden;
+      text-decoration: none;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      background-size: cover;
+      background-position: center;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+      z-index: 0;
+    }
+
+    .card h6 {
+      position: relative;
+      z-index: 1;
+      font-size: 0.95rem;
+      margin: 10px;
+      text-align: center;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 35px rgba(255, 255, 255, 0.5);
+    }
+
+    .sketch-card { background-image: url("{{ url_for('static', filename='backgrounds/sketch_bg.jpg') }}"); }
+    .emotion-card { background-image: url("{{ url_for('static', filename='backgrounds/emotion_bg.jpg') }}"); }
+    .object-card { background-image: url("{{ url_for('static', filename='backgrounds/object_bg.jpg') }}"); }
+
+    footer {
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      text-align: center;
+      padding: 15px;
+      color: #fff;
+      font-size: 0.9rem;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+ <div class="navbar">
+  <div class="nav-left">
+    <a href="{{ url_for('login') }}" class="nav-btn">🔑 Login</a>
+    <a href="{{ url_for('register') }}" class="nav-btn">📝 Register</a>
+  </div>
+  <div class="nav-right">
+    <a href="{{ url_for('profile') }}" class="nav-btn">👤 {{ username|capitalize }}'s Profile</a>
+  </div>
+</div>
+
+
+  <!-- 🎨 Hero Section -->
+  <div class="hero">
+    <h1>🎨 Welcome to the Sketch • Emotion • Object Analyzer</h1>
+    <p><b>Transform your world into art, understand emotions, and detect objects — all in one AI-powered application!</b></p>
+
+    <div class="cards">
+      <a href="{{ url_for('sketch') }}" class="card sketch-card">
+        <h6>🖌 Convert your photos into beautiful pencil sketches instantly.</h6>
+      </a>
+
+      <a href="{{ url_for('emotion_page') }}" class="card emotion-card">
+        <h6>😊 Detect real-time emotions using your webcam feed.</h6>
+      </a>
+
+      <a href="{{ url_for('object_page') }}" class="card object-card">
+        <h6>🎯 Identify and label multiple objects live around you.</h6>
+      </a>
+    </div>
+  </div>
+
+  <footer>© 2026 AI Vision Studio • Built with ❤ using Flask & OpenCV</footer>
+
+</body>
+</html>
